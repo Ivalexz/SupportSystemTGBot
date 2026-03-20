@@ -5,6 +5,14 @@ from model.services.TicketRequest import TicketRequest
 from model.services.StatusUpdate import StatusUpdate
 from app.auth import create_access_token, get_current_manager
 from typing import Dict
+from pydantic import BaseModel
+
+
+class RegisterRequest(BaseModel):
+    telegram_id: int
+    username: str | None = None
+    full_name: str
+    role: str = "user"
 
 app = FastAPI()
 
@@ -35,24 +43,24 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": token, "token_type": "bearer"}
 
 @app.post("/users/register")
-def register_user(user: User):
+def register_user(data: RegisterRequest):
     for usr in users_list:
-        if usr["user_tg_id"] == user.user_tg_id:
+        if usr["user_tg_id"] == str(data.telegram_id):
             return {"message": "User already exists"}
 
-    users_list.append(User.to_dict(
-        user.user_id,
-        user.user_tg_id,
-        user.username,
-        user.role
-    ))
+    users_list.append({
+        "user_id": len(users_list) + 1,
+        "user_tg_id": str(data.telegram_id),
+        "username": data.username or data.full_name,
+        "role": data.role
+    })
     return {"message": "Registered successfully"}
 
 @app.get("/users/by-telegram/{telegram_id}")
 def get_user(telegram_id: int):
     user = None
     for usr in users_list:
-        if usr["user_tg_id"] == telegram_id:
+        if usr["user_tg_id"] == str(telegram_id):
             user = usr
             break
 
@@ -67,7 +75,7 @@ def create_request(data: TicketRequest):
     global request_id_counter
     user = None
     for usr in users_list:
-        if usr["user_tg_id"] == data.telegram_id:
+        if usr["user_tg_id"] == str(data.telegram_id):
             user = usr
             break
 
@@ -89,7 +97,7 @@ def create_request(data: TicketRequest):
 def get_user_requests(telegram_id: int):
     user = None
     for usr in users_list:
-        if usr["user_tg_id"] == telegram_id:
+        if usr["user_tg_id"] == str(telegram_id):
             user = usr
             break
 

@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class Request(BaseModel):
+class TicketRequest(BaseModel):
     telegram_id: int
     title: str
     description: str

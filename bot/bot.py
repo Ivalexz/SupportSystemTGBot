@@ -7,7 +7,7 @@ load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_API = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}'
-API_URL = os.getenv('APP_API_URL', 'http://127.0.0.1:8000')
+API_URL = os.getenv('APP_API_URL', 'http://127.0.0.1:8001')
 
 user_states: dict[int, dict] = {}
 last_notification_ids: dict[int, set[int]] = {}
